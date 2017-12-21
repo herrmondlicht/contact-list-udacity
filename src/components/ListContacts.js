@@ -1,85 +1,34 @@
-import React, {Component} from 'react'
+// import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import escapeRegExp from 'escape-string-regexp'
 import sortBy from 'sort-by'
 import { Link } from 'react-router-dom'
+import FilterBarFactory from './FilterBar';
+import ResultListFactory from './ResultList'
 
 
-/*
-EXISTEM DOIS JEITOS DE FAZER UM COMPONENT DO REACT.
-UM DELES É ATRAVÉS DA CLASSE, QUE É RECOMENDADO PRA QUANDO VOCÊ TEM MAIS QUE APENAS O MÉTODO "RENDER"
-O OUTRO É PELA FUNÇÃO TRADICIONAL (FUNCTION(PROPS){}) QUE RECEBE AS PROPRIEDADES E RETORNA A UI.
-*/
-
-// // JEITO 1
-// class ListContacts extends Component{
-//     render(){
-//         let contacts = this.props.contacts;
-//         return(
-//             <ol className="contact-list">
-//                 {contacts.map((contact)=>(
-//                     <li key={contact.id}  className="contact-list-item">
-//                         <div>
-//                             <div className="contact-avatar" style={{backgroundImage:`url(${contact.avatarURL})`}}></div>
-//                         </div>
-//                         <div className="contact-details">
-//                             <p>{contact.name}</p>
-//                             <p>{contact.email}</p>
-//                         </div>
-//                         <button className="contact-remove">
-//                             Remove
-//                         </button>
-//                     </li>
-//                 ))}
-//             </ol>
-//         )
-//     }
-// }
-
-//JEITO 2
-// function ListContacts(props){
-//     let contacts = props.contacts;
-//     return(
-//         <ol className="contact-list">
-//             {contacts.map((contact)=>(
-//                 <li key={contact.id}  className="contact-list-item">
-//                     <div>
-//                         <div className="contact-avatar" style={{backgroundImage:`url(${contact.avatarURL})`}}></div>
-//                     </div>
-//                     <div className="contact-details">
-//                         <p>{contact.name}</p>
-//                         <p>{contact.email}</p>
-//                     </div>
-//                     <button className="contact-remove"  onClick={()=>{props.deleteContact(contact)}}>
-//                         Remove
-//                     </button>
-//                 </li>
-//             ))}
-//         </ol>
-//     )
-// }
-
-export default React => {
+export default (React, { Component } = React) => {
+  const FilterBar = FilterBarFactory(React);
+  const ResultList = ResultListFactory(React);
   class ListContacts extends Component{
     state = {
-      query:"",
+      search:"",
     }
 
-    updateQuery = ({target: { value }}) => {
-      // const value = event.target.value;
-      this.setState({query:value});
+    updateFilter = (value) => {
+      this.setState({search:value});
     }
 
-    clearQuery = () => {
-      this.setState({query:""});
+    clearFilter = () => {
+      this.setState({search:""});
     }
 
     render(){
-      const { contacts, onDeleteContact } = this.props
+      const { contacts, onDeleteContact } = this.props;
       let showingContacts;
-      const {query} = this.state
-      if(!!query){
-        const match = new RegExp(escapeRegExp(query),"i");
+      const {search} = this.state;
+      if(!!search){
+        const match = new RegExp(escapeRegExp(search),"i");
         showingContacts = contacts.filter(contact => match.test(contact.name))
       }
       else{
@@ -90,41 +39,14 @@ export default React => {
 
       return(
         <div className="list-contacts">
-          <div className="list-contacts-top">
-            <input
-              className="search-contacts"
-              type="text"
-              placeholder="Search Contacts"
-              value={query}
-              onChange={this.updateQuery}/>
-            <Link
-              to="/create"
-              className="add-contact">Add Contact</Link>
-          </div>
-
+          <FilterBar updateFilter={this.updateFilter} search={search} />
           {showingContacts.length !== contacts.length && (
             <div className="showing-contacts" >
               <span>Showing {showingContacts.length} out of {contacts.length}</span>
-              <button onClick={this.clearQuery}>Show all</button>
+              <button onClick={this.clearFilter}>Show all</button>
             </div>
           )}
-
-          <ol className="contact-list">
-            {showingContacts.map((contact)=>(
-              <li key={contact.id}  className="contact-list-item">
-                <div>
-                  <div className="contact-avatar" style={{backgroundImage:`url(${contact.avatarURL})`}}></div>
-                </div>
-                <div className="contact-details">
-                  <p>{contact.name}</p>
-                  <p>{contact.email}</p>
-                </div>
-                <button className="contact-remove"  onClick={()=>{onDeleteContact(contact)}}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ol>
+          <ResultList contacts={showingContacts} onDeleteContact={onDeleteContact} />
         </div>
       )
     }

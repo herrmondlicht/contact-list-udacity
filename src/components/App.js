@@ -17,7 +17,6 @@ class App extends Component {
   }
 
   addContact = (contact) => {
-    console.log(contact);
     ContactsAPI.create(contact).then(newContact => {
       this.setState(prevState=> ({
         contacts:prevState.contacts.concat([ newContact ])
