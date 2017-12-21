@@ -1,10 +1,11 @@
-import React, { Component } from "react"
+// import React, { Component } from "react"
 import { Link } from "react-router-dom"
-import ImageInput from "../ImageInput"
+import ImageInput from "../utils/ImageInput"
 import serializeForm from "form-serialize"
 
 
 export default (React, serialize = serializeForm) => {
+  const { Component } = React
   class CreateContact extends Component{
 
     handleSubmit = (e) => {

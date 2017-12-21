@@ -2,15 +2,16 @@
 import PropTypes from 'prop-types'
 import escapeRegExp from 'escape-string-regexp'
 import sortBy from 'sort-by'
-import { Link } from 'react-router-dom'
-import FilterBarFactory from './FilterBar';
+import FilterBarFactory from './FilterBar'
+import ShowingInfoFactory from './ShowingInfo'
 import ResultListFactory from './ResultList'
 
 
 export default (React, { Component } = React) => {
   const FilterBar = FilterBarFactory(React);
   const ResultList = ResultListFactory(React);
-  class ListContacts extends Component{
+  const ShowingInfo = ShowingInfoFactory(React);
+  class ListContacts extends Component {
     state = {
       search:"",
     }
@@ -19,33 +20,33 @@ export default (React, { Component } = React) => {
       this.setState({search:value});
     }
 
+    filterBySearch(contacts){
+      const { search } = this.state;
+      let filteredContacts = [];
+      if(!!search){
+        const match = new RegExp(escapeRegExp(search),"i");
+        filteredContacts = contacts.filter(contact => match.test(contact.name))
+      }
+      else{
+        filteredContacts = contacts;
+      }
+      filteredContacts.sort(sortBy("name"))
+      return filteredContacts;
+    }
+
     clearFilter = () => {
       this.setState({search:""});
     }
 
     render(){
       const { contacts, onDeleteContact } = this.props;
-      let showingContacts;
-      const {search} = this.state;
-      if(!!search){
-        const match = new RegExp(escapeRegExp(search),"i");
-        showingContacts = contacts.filter(contact => match.test(contact.name))
-      }
-      else{
-        showingContacts = contacts;
-      }
-
-      showingContacts.sort(sortBy("name"))
+      const { search } = this.state;
+      let showingContacts = this.filterBySearch(contacts);
 
       return(
         <div className="list-contacts">
           <FilterBar updateFilter={this.updateFilter} search={search} />
-          {showingContacts.length !== contacts.length && (
-            <div className="showing-contacts" >
-              <span>Showing {showingContacts.length} out of {contacts.length}</span>
-              <button onClick={this.clearFilter}>Show all</button>
-            </div>
-          )}
+          <ShowingInfo totalLength={contacts.length} showingLength={showingContacts.length} clearFilter={this.clearFilter} />
           <ResultList contacts={showingContacts} onDeleteContact={onDeleteContact} />
         </div>
       )

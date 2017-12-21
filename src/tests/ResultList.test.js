@@ -7,14 +7,14 @@ import Adapter from 'enzyme-adapter-react-16';
 
 configure({adapter: new Adapter()})
 
-describe("Componente ResultList", () => {
+describe("ResultList", () => {
   const ResultList = ResultListFactory(React);
 
-  it("que deve renderizar uma lista de contatos com o array recebido", () => {
+  it("deve renderizar uma lista de contatos com o array recebido", () => {
     assert.isFunction(ResultList)
   })
 
-  it("que deve ter um botão de remover com a função de remoção", () => {
+  it("deve ter um botão de remover com a função de remoção", () => {
     const onDeleteContactStub = stub();
     const contacts = [
       {
